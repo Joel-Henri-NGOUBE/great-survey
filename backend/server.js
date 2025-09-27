@@ -1,7 +1,10 @@
 import express from "express"
 import mongoose from "mongoose";
 import cors from "cors"
+import dotenv from "dotenv";
 const app = express()
+
+dotenv.config()
 
 const dbUri = `mongodb+srv://${process.env.MONGO_DB_USER}:${process.env.MONGO_DB_PASSWORD}@cluster0.xng7q05.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
