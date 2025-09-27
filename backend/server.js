@@ -1,5 +1,6 @@
 import express from "express"
 import mongoose from "mongoose";
+import cors from "cors"
 const app = express()
 
 const dbUri = `mongodb+srv://${process.env.MONGO_DB_USER}:${process.env.MONGO_DB_PASSWORD}@cluster0.xng7q05.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -43,16 +44,12 @@ ChoiceModel.find().then((choices) => {
     }
 })
 
-app.get("/choices", (req, res) => {
-    console.log( ChoiceModel.find({}).then((users) => {
-        res.json(users)
-    }))
-})
-
 app.use(express.json())
+app.use(cors("http://localhost:5173"))
 
 app.post("/users/opinion", async (req, res) => {
     try {
+        console.log(req.body)
         const {username, mail, age, choiceId} = req?.body
 
         if(username && mail && choiceId){
@@ -101,6 +98,12 @@ app.post("/users/opinion", async (req, res) => {
     }
 })
 
+app.get("/opinions", async (_, res) => {
+    return await ChoiceModel.find({}).then((choices) => {
+        res.json(choices)
+    })
+})
+
 app.get("/opinions/rates", async (_, res)=> {
     try {
         const choices = await ChoiceModel.find()
@@ -123,7 +126,7 @@ app.get("/opinions/rates", async (_, res)=> {
                 )
             return {
                     label: c.label,
-                    count: count
+                    count: count[0]?.choiceId
                 }
             }
     ))
@@ -140,7 +143,7 @@ app.get("/users/study", async (_, res) => {
                 {
                     $group:
                         {
-                        _id: "$age",
+                        _id: 0,
                         averageAge: { 
                             $avg: "$age" 
                         }
@@ -153,7 +156,7 @@ app.get("/users/study", async (_, res) => {
                 {
                     $group:
                         {
-                        _id: "$age",
+                        _id: 0,
                         maxAge: { 
                             $max: "$age" 
                         }
@@ -166,7 +169,7 @@ app.get("/users/study", async (_, res) => {
                 {
                     $group:
                         {
-                        _id: "$age",
+                        _id: 0,
                         minAge: { 
                             $min: "$age" 
                         }
@@ -175,9 +178,9 @@ app.get("/users/study", async (_, res) => {
             ]
         )
         return res.json({
-            maxAge: maxAge,
-            averageAge: averageAge,
-            minAge: minAge
+            maxAge: maxAge[0].maxAge,
+            averageAge: averageAge[0].averageAge,
+            minAge: minAge[0].minAge
         })
     } catch (error) {
         return res.json({"error": error.message ? error.message : error})
