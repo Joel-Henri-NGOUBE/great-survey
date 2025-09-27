@@ -1,6 +1,5 @@
 import express from "express"
 import mongoose from "mongoose";
-
 const app = express()
 
 const dbUri = `mongodb+srv://${process.env.MONGO_DB_USER}:${process.env.MONGO_DB_PASSWORD}@cluster0.xng7q05.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -62,10 +61,8 @@ app.post("/users/opinion", async (req, res) => {
                 username: username
             })
 
-            let storedChoiceId = 0
-
             try {
-                storedChoiceId = await ChoiceModel.findById(choiceId) 
+                await ChoiceModel.findById(choiceId) 
             } catch (error) {
                 return res.json({"message": "Some important data has been altered", "error": error})
             }
@@ -103,6 +100,40 @@ app.post("/users/opinion", async (req, res) => {
         return res.json({"error": error.message ? error.message : error})
     }
 })
+
+app.get("/opinions/rates", async (_, res)=> {
+    try {
+        const choices = await ChoiceModel.find()
+        const choicesLength = await UserModel.countDocuments()
+        const counts = await Promise.all(choices.map(async (c) => 
+            {
+                const count = await UserModel.aggregate(
+                    [
+                        {
+                            $match: {
+                                choiceId: {
+                                    $eq: c._id
+                                }
+                            }
+                        },
+                        {
+                            $count: "choiceId"
+                        }
+                    ]
+                )
+            return {
+                    label: c.label,
+                    count: count
+                }
+            }
+    ))
+        return res.json({counts: counts, length: choicesLength})
+    } catch (error) {
+        return res.json(error)
+    }
+})
+
+app.get("/users/data")
 
 app.listen(3000, () => {
     console.log("The server is running")
