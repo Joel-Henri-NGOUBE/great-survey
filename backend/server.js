@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema({
     username: {type: String, unique: true, required: true},
     mail: {type: String, required: true},
     age: {type: Number},
-    choice_id: {type: Number, required: true}
+    choiceId: {type: mongoose.Schema.Types.ObjectId, required: true}
 })
 
 const ChoiceSchema = new mongoose.Schema({
@@ -21,7 +21,9 @@ const ChoiceSchema = new mongoose.Schema({
 })
 
 const UserModel = mongoose.model('User', UserSchema)
+
 const ChoiceModel = mongoose.model('Choice', ChoiceSchema)
+
 ChoiceModel.find().then((choices) => {
     if(!choices.length){
             
@@ -42,16 +44,64 @@ ChoiceModel.find().then((choices) => {
     }
 })
 
-app.get("/questions", (req, res) => {
-    return ChoiceModel.find({}).then((users) => {
+app.get("/choices", (req, res) => {
+    console.log( ChoiceModel.find({}).then((users) => {
         res.json(users)
-    })
+    }))
 })
 
-app.post("/users/opinion", (req, res) => {
-    return ChoiceModel.find({}).then((users) => {
-        res.json(users)
-    })
+app.use(express.json())
+
+app.post("/users/opinion", async (req, res) => {
+    try {
+        const {username, mail, age, choiceId} = req?.body
+
+        if(username && mail && choiceId){
+
+            const user = await UserModel.find({
+                username: username
+            })
+
+            let storedChoiceId = 0
+
+            try {
+                storedChoiceId = await ChoiceModel.findById(choiceId) 
+            } catch (error) {
+                return res.json({"message": "Some important data has been altered", "error": error})
+            }
+
+            if(!user.length){
+                UserModel.insertOne(
+                    !age 
+                    ?
+                    {
+                        username: username,
+                        mail: mail,
+                        choiceId: choiceId
+                    }
+                    :
+                    {
+                        username: username,
+                        mail: mail,
+                        age: age,
+                        choiceId: choiceId
+                    }
+                )
+            }
+            else{
+                throw new Error("You've already given your opinion about the question! Chill out!")
+            }
+            return res.json({
+                "message": "You've successfully given your opinion !"
+            })
+        }
+        else{
+            throw new Error("Something is wrong with the entered credentials! Please try again")
+        }
+        
+    } catch (error) {
+        return res.json({"error": error.message ? error.message : error})
+    }
 })
 
 app.listen(3000, () => {
