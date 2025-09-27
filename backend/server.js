@@ -133,7 +133,56 @@ app.get("/opinions/rates", async (_, res)=> {
     }
 })
 
-app.get("/users/data")
+app.get("/users/study", async (_, res) => {
+    try {
+        const averageAge = await UserModel.aggregate(
+            [
+                {
+                    $group:
+                        {
+                        _id: "$age",
+                        maxAge: { 
+                            $avg: "$age" 
+                        }
+                    }
+                }
+            ]
+        )
+        const maxAge = await UserModel.aggregate(
+            [
+                {
+                    $group:
+                        {
+                        _id: "$age",
+                        averageAge: { 
+                            $max: "$age" 
+                        }
+                    }
+                }
+            ]
+        )
+        const minAge = await UserModel.aggregate(
+            [
+                {
+                    $group:
+                        {
+                        _id: "$age",
+                        minAge: { 
+                            $min: "$age" 
+                        }
+                    }
+                }
+            ]
+        )
+        return res.json({
+            maxAge: maxAge,
+            averageAge: averageAge,
+            minAge: minAge
+        })
+    } catch (error) {
+        return res.json({"error": error.message ? error.message : error})
+    }
+})
 
 app.listen(3000, () => {
     console.log("The server is running")
