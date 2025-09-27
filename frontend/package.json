@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "launch": "vite --port 0.0.0.0"
+    "launch": "vite --port 0.0.0.0 --host 5173"
   },
   "dependencies": {
     "@emotion/styled": "^11.14.1",
