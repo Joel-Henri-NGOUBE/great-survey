@@ -48,7 +48,7 @@ ChoiceModel.find().then((choices) => {
 })
 
 app.use(express.json())
-app.use(cors("http://localhost:5173"))
+app.use(cors("https://great-survey.onrender.com/"))
 
 app.post("/users/opinion", async (req, res) => {
     try {
