@@ -141,7 +141,7 @@ app.get("/users/study", async (_, res) => {
                     $group:
                         {
                         _id: "$age",
-                        maxAge: { 
+                        averageAge: { 
                             $avg: "$age" 
                         }
                     }
@@ -154,7 +154,7 @@ app.get("/users/study", async (_, res) => {
                     $group:
                         {
                         _id: "$age",
-                        averageAge: { 
+                        maxAge: { 
                             $max: "$age" 
                         }
                     }
