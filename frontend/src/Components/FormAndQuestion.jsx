@@ -19,10 +19,10 @@ export default function FormAndQuestion({form, setForm, opinions, fetchRates, fe
     return <div className="formAndQuestion">
       
         <div className="inputs">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="username">Nom d'utilisateur</label>
             <input type="text" value={form.username} onChange={(e) => setForm({...form, username: e.target.value})} id="username"/>
 
-            <label htmlFor="mail">Mail</label>
+            <label htmlFor="mail">Email</label>
             <input type="text" value={form.mail} onChange={(e) => setForm({...form, mail: e.target.value})} id="mail"/>
 
             <label htmlFor="age">Age</label>
@@ -37,6 +37,6 @@ export default function FormAndQuestion({form, setForm, opinions, fetchRates, fe
             )}
         </div>
         </div>
-        <button onClick={() => handleGiveUserOpinion(form)}> Send opinion</button>
+        <button onClick={() => handleGiveUserOpinion(form)}> Donner mon avis</button>
     </div>
 }
